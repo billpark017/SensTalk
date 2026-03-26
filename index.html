@@ -988,6 +988,18 @@ footer .footer-brand {
   </div>
 </footer>
 
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: 'AIzaSyANzxZfoawDLcZitGhz_H04yhhHbWeg-Ws',
+  authDomain: 'senstalk.firebaseapp.com',
+  projectId: 'senstalk'
+});
+var db = firebase.firestore();
+</script>
+
 <script>
 function handleSubmit() {
   const email = document.getElementById('email').value;
@@ -1001,26 +1013,24 @@ function handleSubmit() {
   const q2 = document.querySelector('input[name="q2"]:checked');
   const q3 = document.querySelector('input[name="q3"]:checked');
 
-  const data = {
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '등록 중...';
+
+  db.collection('signups').add({
     email: email,
     q1_texting_worry: q1 ? q1.value : 'no_answer',
     q2_willingness_to_pay: q2 ? q2.value : 'no_answer',
     q3_partner_mbti: q3 ? q3.value : 'no_answer',
-    timestamp: new Date().toISOString()
-  };
-
-  console.log('Survey data:', JSON.stringify(data, null, 2));
-
-  // TODO: Replace with your actual backend endpoint
-  // fetch('https://your-api.com/signup', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(data)
-  // });
-
-  // Show success
-  document.getElementById('survey-form').style.display = 'none';
-  document.getElementById('success-msg').classList.add('show');
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function() {
+    document.getElementById('survey-form').style.display = 'none';
+    document.getElementById('success-msg').classList.add('show');
+  }).catch(function(error) {
+    alert('등록에 실패했습니다. 다시 시도해주세요.');
+    btn.disabled = false;
+    btn.textContent = '등록하기';
+  });
 }
 
 // Smooth scroll for CTA
